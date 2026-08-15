@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Chrome Analytics",
+    "version": "1.0",
+    "description": "A Chrome extension that tracks browsing activity, provides analytics.",
+    "permissions": [
+        "storage"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
