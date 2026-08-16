@@ -17,9 +17,19 @@ chrome.storage.sync.get("tracking", (data) => {
     trackingCheckbox.checked = !!data.tracking;
 });
 
-// Add event listener for the start tracking button
+// event listener for the start tracking button
 trackingCheckbox.addEventListener("change", function () {
-    console.log("Start tracking button clicked");
     chrome.action.setBadgeText({ text: trackingCheckbox.checked ? "ON" : "OFF" });
     chrome.storage.sync.set({ tracking: trackingCheckbox.checked });
 })
+
+// event listener for the view analytics and set tracking
+function toggleSections() {
+    analyticsSection.hidden = !analyticsSection.hidden;
+    statusSection.hidden = !statusSection.hidden;
+    viewAnalyticsButton.hidden = !viewAnalyticsButton.hidden;
+    setTrackingButton.hidden = !setTrackingButton.hidden;
+}
+
+viewAnalyticsButton.addEventListener("click", toggleSections);
+setTrackingButton.addEventListener("click", toggleSections);

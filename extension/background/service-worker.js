@@ -6,7 +6,6 @@ function setBadgeText(enabled) {
 }
 
 function startUp() {
-    console.log("Background script started");
     chrome.storage.sync.get("tracking", (data) => {
         setBadgeText(!!data.tracking);
     })

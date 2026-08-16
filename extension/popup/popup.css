@@ -47,6 +47,10 @@ h1 {
     background: #f7f7f7;
 }
 
+.status[hidden] {
+    display: none;
+}
+
 .status label {
     font-weight: bold;
 }
