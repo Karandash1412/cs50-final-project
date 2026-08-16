@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chrome Analytics</title>
+    <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
+
+<body>
+    <header class="header">
+        <img class="logo" src="../assets/icon32.png" alt="logo of Chrome Analytics">
+        <div>
+            <h1>Chrome Analytics</h1>
+            <p class="subtitle">Browsing activity tracker</p>
+        </div>
+    </header>
+
+    <section class="status" id="status">
+        <div>
+            <label for="tracking">Tracking</label>
+            <p class="hint">Record page visits for analytics</p>
+        </div>
+        <input type="checkbox" id="tracking">
+    </section>
+
+    <section class="analytics" id="analytics" hidden>
+        <div>
+            <h2 for="analytics">Analytics</h2>
+            <p>Today: 3h 42m</p>
+            <p>Productive: 72%</p>
+            <h3>Top visited sites</h3>
+            <div id="top-visited-sites">
+                <p>GitHub: 1h 12m</p>
+                <p>YouTube: 58m</p>
+                <p>Reddit: 32m</p>
+            </div>
+        </div>
+    </section>
+    <section class="actions" id="buttons">
+        <button id="viewAnalytics" type="button">View Analytics</button>
+        <button id="setTracking" type="button" hidden>Set Tracking</button>
+        <button id="exportData" type="button">Export Data</button>
+        <button id="clearData" class="danger" type="button">Clear Data</button>
+    </section>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
