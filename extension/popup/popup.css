@@ -1,85 +1,98 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    width: 280px;
-    margin: 0;
-    padding: 12px;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    color: #222;
-    background: #fff;
+  width: 280px;
+  margin: 0;
+  padding: 12px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: #222;
+  background: #fff;
 }
 
 .header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .logo {
-    width: 32px;
-    height: 32px;
+  width: 32px;
+  height: 32px;
 }
 
 h1 {
-    margin: 0;
-    font-size: 15px;
+  margin: 0;
+  font-size: 15px;
 }
 
 .subtitle,
 .hint {
-    margin: 2px 0 0;
-    color: #555;
-    font-size: 12px;
+  margin: 2px 0 0;
+  color: #555;
+  font-size: 12px;
 }
 
 .status {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 8px 10px;
-    margin-bottom: 12px;
-    border: 1px solid #ddd;
-    background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
 }
 
-.status[hidden] {
-    display: none;
+.status[hidden],
+.settings-item[hidden] {
+  display: none;
 }
 
-.status label {
-    font-weight: bold;
+.status label,
+.settings-item label {
+  font-weight: bold;
 }
 
-.actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.actions,
+.settings-item select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 button {
-    width: 100%;
-    padding: 8px;
-    font-size: 13px;
-    color: #fff;
-    background: #1a73e8;
-    border: 1px solid #1a73e8;
-    cursor: pointer;
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  color: #fff;
+  background: #1a73e8;
+  border: 1px solid #1a73e8;
+  cursor: pointer;
 }
 
 button:hover {
-    background: #1558b0;
+  background: #1558b0;
 }
 
 .danger {
-    background: #c5221f;
-    border-color: #f5f5f5;
+  background: #c5221f;
+  border-color: #f5f5f5;
 }
 
 .danger:hover {
-    background: #a11b19;
+  background: #a11b19;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
 }

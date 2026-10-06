@@ -15,6 +15,7 @@ def analitics():
     analitics = db.execute("SELECT * FROM analitics WHERE date = ?", (date.today().strftime("%Y-%m-%d"),));
     return jsonify(analitics)
 
+app.route("/")
 # @app.route("/set-tracking", methods=["POST"])
 # def set_tracking():
 #     tracking = request.json.get("tracking")

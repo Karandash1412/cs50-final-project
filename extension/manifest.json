@@ -1,32 +1,26 @@
 {
-    "manifest_version": 3,
-    "name": "Chrome Analytics",
-    "version": "1.0",
-    "description": "A Chrome extension that tracks browsing activity, provides analytics.",
-    "icons": {
-        "16": "assets/icon16.png",
-        "32": "assets/icon32.png",
-        "128": "assets/icon128.png"
-    },
-    "permissions": [
-        "storage",
-        "activeTab"
-    ],
-    "incognito": "not_allowed",
-    "action": {
-        "default_popup": "popup/popup.html"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "content/content.js"
-            ]
-        }
-    ],
-    "background": {
-        "service_worker": "background/service-worker.js"
+  "name": "Chrome Analytics",
+  "version": "1.0",
+  "description": "A Chrome extension that tracks browsing activity, provides analytics.",
+  "permissions": ["storage", "activeTab"],
+  "manifest_version": 3,
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "128": "assets/icon128.png"
+  },
+  "incognito": "not_allowed",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
     }
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  }
 }
