@@ -64,6 +64,25 @@ viewAnalyticsButton.addEventListener("click", () =>
 setTrackingButton.addEventListener("click", () =>
   toggleSections("setTracking"),
 );
+
+async function handleClearData() {
+  await chrome.storage.sync.clear();
+
+  fetch("http://127.0.0.1:5000/clear-data", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message) {
+        alert(data.message);
+      }
+    });
+}
+
 settingsButton.addEventListener("click", toggleSettings);
 trackingCheckbox.addEventListener("change", handleChangeCheckbox);
 trackingTimeSelect.addEventListener("change", handleChangeTrackingTime);
+clearDataButton.addEventListener("click", handleClearData);

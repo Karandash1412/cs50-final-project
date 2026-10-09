@@ -1,8 +1,5 @@
 "use strict";
 
-let trackingTimeStart = null;
-let currentPage = null;
-
 // function to set the badge text
 function setBadgeText(enabled) {
   const text = enabled ? "ON" : "OFF";
@@ -22,47 +19,68 @@ chrome.runtime.onInstalled.addListener(startUp);
 
 // function to get the current page tab
 async function getCurrentPage() {
-  // get the current page tab
-  let queryOptions = { active: true, currentWindow: true };
-  let [tab] = await chrome.tabs.query(queryOptions);
-  if (!tab) {
-    console.log("No active tab found");
-    return null;
-  }
-  // check if the page tab is already being tracked
-  const data = await chrome.storage.sync.get("trackingPage");
+  // get the current page
+  const { currentPage } = await chrome.storage.session.get(["currentPage"]);
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
 
-  if (data.trackingPage === tab.url) {
-    // start tracking the time
-    currentPage = tab.url;
-    trackingTimeStart = Date.now();
-  } else if (currentPage !== null) {
-    // stop tracking the time
-    stopTrackingTime();
-  }
-  return;
-}
+  if (tab && tab.url) {
+    const hostname = new URL(tab.url).hostname;
 
-// function to stop tracking the time and create a session
-function stopTrackingTime() {
-  createSession(currentPage, trackingTimeStart);
-  trackingTimeStart = null;
-  currentPage = null;
+    if (currentPage === null || currentPage === undefined) {
+      await chrome.storage.session.set({
+        trackingTimeStart: Date.now(),
+        currentPage: hostname,
+      });
+    } else if (currentPage !== hostname) {
+      await createSession();
+
+      await chrome.storage.session.set({
+        currentPage: hostname,
+        trackingTimeStart: Date.now(),
+      });
+    }
+  }
+  return 0;
 }
 
 // function to get the current page
 getCurrentPage();
 
-function createSession(currentPage, trackingTimeStart) {
-  // todo save the data at db by using Flask API
+async function createSession() {
+  const { trackingTimeStart, currentPage } = await chrome.storage.session.get([
+    "trackingTimeStart",
+    "currentPage",
+  ]);
+  if (trackingTimeStart === undefined || currentPage === undefined) {
+    return;
+  }
   let currentSession = {
     domain: currentPage,
-    start_time: trackingTimeStart,
-    duration: Date.now() - trackingTimeStart,
+    duration: Number(((Date.now() - trackingTimeStart) / 3600000).toFixed(2)),
   };
+  postData(currentSession);
 }
-// to doo
-//However, two issues remain:
+// function to post the data to the Flask API
+function postData(data) {
+  fetch("/analitics", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
 
-// trackingPage is never saved, so data.trackingPage is likely undefined.
-// getCurrentPage() runs only once; it does not run when you switch tabs.
+chrome.tabs.onActivated.addListener(getCurrentPage);
+
+async function initializeTracking() {
+  const { tracking } = await chrome.storage.sync.get("tracking");
+  if (!tracking) return;
+
+  getCurrentPage();
+}
+
+initializeTracking();
