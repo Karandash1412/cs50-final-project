@@ -13,3 +13,6 @@
 
 // Database
 database.db
+
+//cache
+__pycache__

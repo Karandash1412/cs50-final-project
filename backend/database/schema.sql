@@ -11,5 +11,6 @@ CREATE TABLE IF NOT EXISTS tracking_websites (
     url TEXT NOT NULL,
     tracking_time INTEGER NOT NULL DEFAULT 24, # in hours
     time_spent INTEGER NOT NULL DEFAULT 0,
+    date TEXT NOT NULL,
     FOREIGN KEY (analitics_id) REFERENCES analitics(id)
 );

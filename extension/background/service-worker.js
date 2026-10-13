@@ -60,9 +60,11 @@ async function createSession() {
   let currentSession = {
     domain: currentPage,
     duration: Number(((Date.now() - trackingTimeStart) / 3600000).toFixed(2)),
+    date: new Date.now(),
   };
   postData(currentSession);
 }
+
 // function to post the data to the Flask API
 function postData(data) {
   fetch("/analitics", {
