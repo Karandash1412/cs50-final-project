@@ -9,6 +9,7 @@ const trackingCheckbox = document.getElementById("tracking");
 const statusSection = document.getElementById("status");
 const analyticsSection = document.getElementById("analytics");
 const settingsSection = document.getElementById("settings");
+const topVisitedSitesSection = document.getElementById("top-visited-sites");
 
 // variables buttons
 const viewAnalyticsButton = document.getElementById("viewAnalytics");
@@ -22,12 +23,14 @@ chrome.storage.sync.get("tracking", (data) => {
 });
 
 // event listener function for the view analytics and set tracking
-function toggleSections(section) {
+async function toggleSections(section) {
+  const { trackingTime = "24" } = await chrome.storage.sync.get("trackingTime");
   if (section === "analytics") {
     analyticsSection.hidden = false;
     statusSection.hidden = true;
     viewAnalyticsButton.hidden = true;
     setTrackingButton.hidden = false;
+    await getAnalytics(trackingTime);
   } else {
     analyticsSection.hidden = true;
     statusSection.hidden = false;
@@ -37,6 +40,31 @@ function toggleSections(section) {
 
   settingsSection.hidden = true;
   settingsButton.hidden = false;
+}
+
+// function to get the analytics from the API
+async function getAnalytics(trackingTime) {
+  const response = await fetch(
+    `http://127.0.0.1:5000/analitics?date=${trackingTime}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  const data = await response.json();
+  if (!response.ok) throw new Error(`API request failed: ${response.error}`);
+
+  if (data.error) {
+    topVisitedSitesSection.innerHTML = `<p>${data.error}</p>`;
+  } else if (data.length === 0) {
+    topVisitedSitesSection.innerHTML = `<p>No data</p>`;
+  } else {
+    topVisitedSitesSection.innerHTML = data
+      .map((site) => `<p>${site.url}: ${site.time_spent}m</p>`)
+      .join("");
+  }
 }
 
 // fucntion for the event listener for the settings button

@@ -60,20 +60,22 @@ async function createSession() {
   let currentSession = {
     domain: currentPage,
     duration: Number(((Date.now() - trackingTimeStart) / 3600000).toFixed(2)),
-    date: new Date.now(),
+    date: Date.now(),
   };
   postData(currentSession);
 }
 
 // function to post the data to the Flask API
-function postData(data) {
-  fetch("/analitics", {
+async function postData(data) {
+  const response = await fetch("http://127.0.0.1:5000/analitics", {
     method: "POST",
-    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify(data),
   });
+  if (!response.ok) throw new Error(`API request failed: ${response.error}`);
+  return response.json();
 }
 
 chrome.tabs.onActivated.addListener(getCurrentPage);
