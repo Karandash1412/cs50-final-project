@@ -1,6 +1,13 @@
 * {
   box-sizing: border-box;
 }
+p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #222;
+  background: #fff;
+}
 
 body {
   width: 280px;
@@ -87,7 +94,8 @@ button:hover {
   background: #a11b19;
 }
 
-.settings-item {
+.settings-item,
+.site-category {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -95,4 +103,10 @@ button:hover {
   margin-bottom: 12px;
   border: 1px solid #ddd;
   background: #f7f7f7;
+}
+
+.site-category-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS tracking_websites (
     url TEXT NOT NULL,
     tracking_time INTEGER NOT NULL DEFAULT 24,
     time_spent INTEGER NOT NULL DEFAULT 0,
-    date TEXT NOT NULL,
-    FOREIGN KEY (date) REFERENCES analitics(date)
+    date TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS site_categories (
+    domain TEXT NOT NULL UNIQUE,
+    category TEXT NOT NULL DEFAULT 'neutral'
 );

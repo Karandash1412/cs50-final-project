@@ -74,7 +74,7 @@ async function postData(data) {
     },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error(`API request failed: ${response.error}`);
+  if (!response.ok) throw new Error(`API request failed: ${response.status}`);
   return response.json();
 }
 

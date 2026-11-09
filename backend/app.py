@@ -42,18 +42,26 @@ def analitics_get():
 def analitics_post():
     data = request.get_json()
 
-    db.execute(
-        """
-        INSERT INTO tracking_websites
-        (url, tracking_time, time_spent, date)
-        VALUES (?, ?, ?, ?)
-        """,
-        data["domain"],
-        data["duration"],
-        data["duration"],
-        data["date"],
+    db.execute("INSERT INTO tracking_websites (url, tracking_time, time_spent, date) VALUES (?, ?, ?, ?)",
+        data["domain"], data["duration"], data["duration"], data["date"],
     )    
     return jsonify({"message": "Data inserted successfully"})
+
+@app.route("/domain-settings", methods=["GET"])
+def domain_settings_get():
+    data = db.execute("SELECT * FROM site_categories")
+    return jsonify(data)
+
+@app.route("/domain-settings",methods=["POST"])
+def domain_settings_post():
+    data = request.get_json()
+    db.execute("SELECT COUNT(*) FROM site_categories WHERE domain = ?", (data["domain"],))
+    if result[0] > 0:
+        db.execute("UPDATE site_categories SET category = ? WHERE domain = ?", (data["category"], data["domain"],))
+        return jsonify({"message": "Domain updated successfully"})
+    else:
+        db.execute("INSERT INTO site_categories (domain, category) VALUES (?, ?)", (data["domain"], data["category"],))
+        return jsonify({"message": "Domain added successfully"})
 
 @app.route("/clear-data", methods=["DELETE"])
 def clear_data():
