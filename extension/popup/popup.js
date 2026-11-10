@@ -11,6 +11,7 @@ const analyticsSection = document.getElementById("analytics");
 const settingsSection = document.getElementById("settings");
 const topVisitedSitesSection = document.getElementById("top-visited-sites");
 const siteCategorySelect = document.getElementById("site-category");
+const siteCategoryItems = document.getElementById("site-category-items");
 
 // variables buttons
 const viewAnalyticsButton = document.getElementById("viewAnalytics");
@@ -38,7 +39,6 @@ async function toggleSections(section) {
     statusSection.hidden = false;
     viewAnalyticsButton.hidden = false;
     setTrackingButton.hidden = true;
-    siteCategorySelect.hidden = false;
   }
 
   settingsSection.hidden = true;
@@ -62,10 +62,10 @@ async function getAnalytics(trackingTime) {
   if (data.error) {
     topVisitedSitesSection.innerHTML = `<p>${data.error}</p>`;
   } else if (data.length === 0) {
-    topVisitedSitesSection.innerHTML = `<p>No data</p>`;
+    topVisitedSitesSection.innerHTML = `<p class="no-data">You didn't visit any site yet</p>`;
   } else {
     topVisitedSitesSection.innerHTML = data
-      .map((site) => `<p>${site.url}: ${site.time_spent}m</p>`)
+      .map((site) => `<p>${site.url}: ${Math.floor(site.time_spent / 60)}m ${site.time_spent % 60}s</p>`)
       .join("");
   }
 }
@@ -77,6 +77,7 @@ function toggleSettings() {
   settingsSection.hidden = false;
   settingsButton.hidden = true;
   siteCategorySelect.hidden = false;
+  handleSetSiteCategory();
 }
 
 // function for the event listener for the tracking checkbox
@@ -99,19 +100,24 @@ setTrackingButton.addEventListener("click", () =>
 
 async function handleClearData() {
   await chrome.storage.sync.clear();
-
-  fetch("http://127.0.0.1:5000/clear-data", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.message) {
-        alert(data.message);
-      }
-    });
+  try {
+    fetch("http://127.0.0.1:5000/clear-data", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          alert(data.message);
+        }
+      });
+  } catch (error) {
+    alert(error.message);
+  }
+  if (!analyticsSection.hidden) getAnalytics("24");
+  else if (!settingsSection.hidden) handleSetSiteCategory();
 }
 
 settingsButton.addEventListener("click", toggleSettings);
@@ -120,31 +126,43 @@ trackingTimeSelect.addEventListener("change", handleChangeTrackingTime);
 clearDataButton.addEventListener("click", handleClearData);
 
 async function handleSetSiteCategory() {
-  const response = await fetch("http://127.0.0.1:5000/domain-settings", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+  try {
+    const response = await fetch("http://127.0.0.1:5000/domain-settings", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+    if (data.length === 0) {
+      siteCategoryItems.innerHTML = `<p class="no-data">You didn't visit any site yet</p>`;
+    } else {
+      siteCategoryItems.innerHTML = data
+        .map(({ domain, category }) => `
+        <div class="site-category-item">
+          <p>${domain}</p>
+          <select data-domain="${domain}">
+            <option value="neutral">Neutral</option>
+            <option value="productive" ${category === "productive" && "selected"}>Productive</option>
+            <option value="unproductive" ${category === "unproductive" && "selected"}>Unproductive</option>
+          </select>
+        </div>`)
+        .join("");
+    }
+  } catch (error) {
+    alert(error.message);
+  }
 
-  if (data.error) {
-    siteCategorySelect.innerHTML = `<p>${data.error}</p>`;
-  } else if (data.length === 0) {
-    siteCategorySelect.innerHTML = `<p>No site categories</p>`;
-  } else {
-    siteCategorySelect.innerHTML = data
-      .map((domain) => {
-        return `<div class="site-category-item">
-        <p>${domain.domain}</p>
-        <select name="site-category" id="site-category">
-          <option value="neutral">Neutral</option>
-          <option value="productive">Productive</option>
-          <option value="unproductive">Unproductive</option>
-        </select>
-      </div>`;
-      })
-      .join("");
+  siteCategoryItems.onchange = (e) => {
+    try {
+      fetch("http://127.0.0.1:5000/domain-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: e.target.dataset.domain, category: e.target.value }),
+      });
+    } catch (error) {
+      alert(error.message);
+    }
   }
 }

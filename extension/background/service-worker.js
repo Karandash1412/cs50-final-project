@@ -26,8 +26,9 @@ async function getCurrentPage() {
     currentWindow: true,
   });
 
-  if (tab && tab.url) {
-    const hostname = new URL(tab.url).hostname;
+  // if the tab is valid and the url starts with http, get the hostname
+  if (tab?.url && ["http:", "https:"].includes(new URL(tab.url).protocol)) {
+    const hostname = new URL(tab.url).hostname.replace(/^www\./, "");
 
     if (currentPage === null || currentPage === undefined) {
       await chrome.storage.session.set({
@@ -42,6 +43,10 @@ async function getCurrentPage() {
         trackingTimeStart: Date.now(),
       });
     }
+  } else {
+    // non-http tab (newtab, extensions): close the current session
+    await createSession();
+    await chrome.storage.session.remove(["currentPage", "trackingTimeStart"]);
   }
   return 0;
 }
@@ -49,6 +54,7 @@ async function getCurrentPage() {
 // function to get the current page
 getCurrentPage();
 
+// function to create a new session
 async function createSession() {
   const { trackingTimeStart, currentPage } = await chrome.storage.session.get([
     "trackingTimeStart",
@@ -59,10 +65,15 @@ async function createSession() {
   }
   let currentSession = {
     domain: currentPage,
-    duration: Number(((Date.now() - trackingTimeStart) / 3600000).toFixed(2)),
+    duration: Math.round((Date.now() - trackingTimeStart) / 1000),
     date: Date.now(),
   };
+  // if the session duration is less than 1 second, don't post the data
+  if (currentSession.duration < 1) return;
+
+  // post the data to the Flask API
   postData(currentSession);
+
 }
 
 // function to post the data to the Flask API
@@ -79,12 +90,18 @@ async function postData(data) {
 }
 
 chrome.tabs.onActivated.addListener(getCurrentPage);
-
+// function to initialize the tracking
 async function initializeTracking() {
   const { tracking } = await chrome.storage.sync.get("tracking");
   if (!tracking) return;
 
   getCurrentPage();
 }
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.tracking) {
+    setBadgeText(!!changes.tracking.newValue);
+  }
+});
 
+// initialize the tracking
 initializeTracking();

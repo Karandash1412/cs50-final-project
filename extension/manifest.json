@@ -2,7 +2,11 @@
   "name": "Chrome Analytics",
   "version": "1.0",
   "description": "A Chrome extension that tracks browsing activity, provides analytics.",
-  "permissions": ["storage", "activeTab", "tabs"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
   "manifest_version": 3,
   "icons": {
     "16": "assets/icon16.png",
@@ -15,13 +19,19 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content/content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "background": {
     "service_worker": "background/service-worker.js"
   },
-  "host_permissions": ["http://127.0.0.1:5000/*"]
+  "host_permissions": [
+    "http://127.0.0.1:5000/*"
+  ]
 }

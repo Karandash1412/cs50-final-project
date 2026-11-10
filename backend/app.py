@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
-from datetime import date
 from cs50 import SQL
 import sqlite3
 from pathlib import Path
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 BACKEND_PATH = Path(__file__).resolve().parent
 DATABASE_DIR = BACKEND_PATH / "database"
@@ -34,7 +35,7 @@ def analitics_get():
         return jsonify({"error": "Invalid range"}), 400
 
     data = db.execute(
-        "SELECT url,time_spent FROM tracking_websites WHERE date >= datetime('now', ?)", (time_range,),
+        "SELECT url,time_spent FROM tracking_websites WHERE datetime(date / 1000, 'unixepoch') >= datetime('now', ?) GROUP BY url ORDER BY time_spent DESC, LIMIT 5", time_range
     )
     return jsonify(data)
 
@@ -42,6 +43,9 @@ def analitics_get():
 def analitics_post():
     data = request.get_json()
 
+    if data == None:
+        return jsonify({"error": "You didn't visit any site yet"}), 400
+    
     db.execute("INSERT INTO tracking_websites (url, tracking_time, time_spent, date) VALUES (?, ?, ?, ?)",
         data["domain"], data["duration"], data["duration"], data["date"],
     )    
@@ -49,18 +53,25 @@ def analitics_post():
 
 @app.route("/domain-settings", methods=["GET"])
 def domain_settings_get():
-    data = db.execute("SELECT * FROM site_categories")
+    data = db.execute(
+        "SELECT DISTINCT url AS domain, category FROM tracking_websites "
+        "LEFT JOIN site_categories ON domain = url"
+    )
     return jsonify(data)
 
 @app.route("/domain-settings",methods=["POST"])
 def domain_settings_post():
-    data = request.get_json()
-    db.execute("SELECT COUNT(*) FROM site_categories WHERE domain = ?", (data["domain"],))
-    if result[0] > 0:
-        db.execute("UPDATE site_categories SET category = ? WHERE domain = ?", (data["category"], data["domain"],))
+    data_json = request.get_json()
+
+    if data_json == None:
+        return jsonify({"error": "No data provided"}), 400
+    
+    rows = db.execute("SELECT COUNT(*) AS count FROM site_categories WHERE domain = ?", data_json["domain"])
+    if rows[0]["count"] > 0:
+        db.execute("UPDATE site_categories SET category = ? WHERE domain = ?", data_json["category"], data_json["domain"])
         return jsonify({"message": "Domain updated successfully"})
     else:
-        db.execute("INSERT INTO site_categories (domain, category) VALUES (?, ?)", (data["domain"], data["category"],))
+        db.execute("INSERT INTO site_categories (domain, category) VALUES (?, ?)", data_json["domain"], data_json["category"])
         return jsonify({"message": "Domain added successfully"})
 
 @app.route("/clear-data", methods=["DELETE"])
